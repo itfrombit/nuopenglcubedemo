@@ -1,0 +1,88 @@
+INTRODUCTION
+
+NuOpenGLCubeDemo is a simple example of using low-level
+OpenGL in Nu to draw and animate a cube.
+
+This demo calls older OpenGL primitives, and doesn't use
+a modern OpenGL architecture.  I wouldn't recommend
+using this approach for real applications, but I was
+mostly interested to see how much of the application
+I could implement in Nu.  It turns out that just about
+everything could be implemented in Nu except for a 1-line
+function at initialization.  Nice job Tim and libffi!
+
+You can have fun with the application using the Nu
+Console.  Here are a few things to try:
+
+	($view startAnimation)
+	($view stopAnimation)
+	($view resetCameraAndUpdateProjection)
+	
+You can experiment with changing the velocity and
+acceleration vectors when animating the cube:
+
+	;; Use indexes 0,1,2 to explore 
+	;; and set X/Y/Z parameters
+
+	($rVel valueAt:0)	;; X velocity
+	($rVel setAt:0 value:0.5)
+	
+	($rAccel setAt:0 value:0.004) ;; acceleration
+
+You can also play with the camera settings like the
+aperture, but not all of these setting have global
+variables so you'll have to get at them using the 
+view:
+	(($view camera) setAperture:80.0)
+
+When the main application view has the focus, you
+can hit the space bar to toggle the animation on
+and off.
+
+Drag the cube around in real-time to rotate it.
+
+Right-click and drag to pan the camera.
+
+Option-click and drag (or use your scroll wheel, 
+if you have one) to move the dolly to zoom in and
+out.
+
+If you lose the cube while zooming and panning, 
+hit 'r' to reset the camera.
+
+
+You can find the latest version of NuOpenGLCubeDemo at
+	http://github.com/itfrombit/nuopenglcubedemo
+
+This application was adapted from Apple's Cocoa OpenGL
+sample code.  You can find the original version at
+http://developer.apple.com/samplecode/CocoaGL/index.html
+
+The shell of the Nu application was adapted from Tim
+Burks' Benwanu example in the Nu distribution.
+
+
+REQUIREMENTS
+
+NuOpenGLCubeDemo requires Nu, nuke and the Apple 
+Developer Tools.  It was written and tested on 
+OS X 10.5.2.
+
+You can find out more about Nu at
+	http://programming.nu
+
+You can get Nu from the git repository at
+	http://github.com/timburks/nu
+	
+
+INSTALLATION
+
+Build the NuOpenGLCubeDemo by typing "nuke" in the
+top-level NuOpenGLCubeDemo directory.  You can run
+the resulting application from the same top-level
+directory.
+
+
+AUTHOR
+
+NuOpenGLCubeDemo was written by Jeff Buck.
