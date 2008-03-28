@@ -91,24 +91,24 @@
         (self zero)
         self)
      
-     (- (double) valueAt:(int) i is
+     (- (double) valueAtIndex:(int) i is
         (@data objectAtIndex:i))
      
      (- (void) setValue:(double) value atIndex:(int) i is
         (@data nuReplaceObjectAtIndex:i withObject:value))
      
      (- (void) setDelta:(double) delta atIndex:(int) i is
-        (self setValue:(+ (self valueAt:i) delta) atIndex:i))
+        (self setValue:(+ (self valueAtIndex:i) delta) atIndex:i))
      
      ;; Make aliases for 3d coordinate usage
      (- (double) x is
-        (self valueAt:0))
+        (self valueAtIndex:0))
      
      (- (double) y is
-        (self valueAt:1))
+        (self valueAtIndex:1))
      
      (- (double) z is
-        (self valueAt:2))
+        (self valueAtIndex:2))
      
      (- (void) setX:(double)value is
         (self setValue:value atIndex:0))
@@ -333,37 +333,37 @@
         
         ;; Do velocities
         (for ((set i 0) (< i 3) (set i (+ i 1)))
-             (@rVel setDelta:(* (@rAccel valueAt:i) deltaTime 30.0) atIndex:i)
+             (@rVel setDelta:(* (@rAccel valueAtIndex:i) deltaTime 30.0) atIndex:i)
              
-             (if (> (@rVel valueAt:i) vMax)
+             (if (> (@rVel valueAtIndex:i) vMax)
                  (then
-                      (@rAccel setValue:(* -1.0 (@rAccel valueAt:i)) atIndex:i)
+                      (@rAccel setValue:(* -1.0 (@rAccel valueAtIndex:i)) atIndex:i)
                       (@rVel setValue:vMax atIndex:i))
                  (else
-                      (if (< (@rVel valueAt:i) (- 0.0 vMax))
+                      (if (< (@rVel valueAtIndex:i) (- 0.0 vMax))
                           (then
-                               (@rAccel setValue:(* -1.0 (@rAccel valueAt:i)) atIndex:i)
+                               (@rAccel setValue:(* -1.0 (@rAccel valueAtIndex:i)) atIndex:i)
                                (@rVel setValue:(- 0.0 vMax) atIndex:i)))))
              
-             (@rRot setDelta:(* (@rVel valueAt:i) deltaTime 30.0) atIndex:i)
+             (@rRot setDelta:(* (@rVel valueAtIndex:i) deltaTime 30.0) atIndex:i)
              
              ;; Get our values in the normal range
-             (while (> (@rRot valueAt:i) 360.0)
+             (while (> (@rRot valueAtIndex:i) 360.0)
                     (@rRot setDelta:-360.0 atIndex:i))
              
-             (while (< (@rRot valueAt:i) -360.0)
+             (while (< (@rRot valueAtIndex:i) -360.0)
                     (@rRot setDelta:360.0 atIndex:i)))
         
-        (@rotation setValue:(@rRot valueAt:0) atIndex:0)
+        (@rotation setValue:(@rRot valueAtIndex:0) atIndex:0)
         (@rotation setValue:1.0 atIndex:1)
         (self addToRotationTrackball:@rotation a:@objectRotation)
         
-        (@rotation setValue:(@rRot valueAt:1) atIndex:0)
+        (@rotation setValue:(@rRot valueAtIndex:1) atIndex:0)
         (@rotation setValue:0.0 atIndex:1)
         (@rotation setValue:1.0 atIndex:2)
         (self addToRotationTrackball:@rotation a:@objectRotation)
         
-        (@rotation setValue:(@rRot valueAt:2) atIndex:0)
+        (@rotation setValue:(@rRot valueAtIndex:2) atIndex:0)
         (@rotation setValue:0.0 atIndex:2)
         (@rotation setValue:1.0 atIndex:3)
         (self addToRotationTrackball:@rotation a:@objectRotation))
@@ -386,24 +386,24 @@
              ((@camera viewUp) z))
         
         ;; Do we have trackball rotation to map?
-        (if (!= (@trackballRotation valueAt:0) 0.0)
+        (if (!= (@trackballRotation valueAtIndex:0) 0.0)
             (then
-                 (glRotatef (@trackballRotation valueAt:0)
-                      (@trackballRotation valueAt:1)
-                      (@trackballRotation valueAt:2)
-                      (@trackballRotation valueAt:3))))
+                 (glRotatef (@trackballRotation valueAtIndex:0)
+                      (@trackballRotation valueAtIndex:1)
+                      (@trackballRotation valueAtIndex:2)
+                      (@trackballRotation valueAtIndex:3))))
         
         ;; Set accumulated world rotation via trackball
-        (glRotatef 	(@worldRotation valueAt:0)
-             (@worldRotation valueAt:1)
-             (@worldRotation valueAt:2)
-             (@worldRotation valueAt:3))
+        (glRotatef 	(@worldRotation valueAtIndex:0)
+             (@worldRotation valueAtIndex:1)
+             (@worldRotation valueAtIndex:2)
+             (@worldRotation valueAtIndex:3))
         
         ;; Rotate the cube itself after camera rotation
-        (glRotatef 	(@objectRotation valueAt:0)
-             (@objectRotation valueAt:1)
-             (@objectRotation valueAt:2)
-             (@objectRotation valueAt:3))
+        (glRotatef 	(@objectRotation valueAtIndex:0)
+             (@objectRotation valueAtIndex:1)
+             (@objectRotation valueAtIndex:2)
+             (@objectRotation valueAtIndex:3))
         
         ;; reset animation rotations
         ;; (do in all cases to prevent rotating while moving with trackball)
@@ -499,7 +499,7 @@
         
         (if (eq @isTrackball YES)
             (then
-                 (if (!= (@trackballRotation valueAt:0) 0.0)
+                 (if (!= (@trackballRotation valueAtIndex:0) 0.0)
                      (then
                           (self addToRotationTrackball:@trackballRotation a:@worldRotation)))
                  
@@ -520,7 +520,7 @@
         
         (if (eq @isTrackball YES)
             (then
-                 (if (!= (@trackballRotation valueAt:0) 0.0)
+                 (if (!= (@trackballRotation valueAtIndex:0) 0.0)
                      (then
                           (self addToRotationTrackball:@trackballRotation a:@worldRotation)))
                  
@@ -571,7 +571,7 @@
                       (else (if (eq @isTrackball YES)
                                 (then
                                      (set @isTrackball NO)
-                                     (if (!= (@trackballRotation valueAt:0) 0.0)
+                                     (if (!= (@trackballRotation valueAtIndex:0) 0.0)
                                          (then
                                               (self addToRotationTrackball:@trackballRotation a:@worldRotation)))
                                      (@trackballRotation zero))))))))
@@ -718,8 +718,8 @@
         (@gStartPtTrackball setValue:(- x @gXCenterTrackball) atIndex:0)
         (@gStartPtTrackball setValue:(- y @gYCenterTrackball) atIndex:1)
         
-        (set xxyy (+ (* (@gStartPtTrackball valueAt:0) (@gStartPtTrackball valueAt:0))
-                     (* (@gStartPtTrackball valueAt:1) (@gStartPtTrackball valueAt:1))))
+        (set xxyy (+ (* (@gStartPtTrackball valueAtIndex:0) (@gStartPtTrackball valueAtIndex:0))
+                     (* (@gStartPtTrackball valueAtIndex:1) (@gStartPtTrackball valueAtIndex:1))))
         
         (if (> xxyy (* @gRadiusTrackball @gRadiusTrackball))
             (then
@@ -734,15 +734,15 @@
         (@gEndPtTrackball setValue:(- x @gXCenterTrackball) atIndex:0)
         (@gEndPtTrackball setValue:(- y @gYCenterTrackball) atIndex:1)
         
-        (if (and (< (fabs (- (@gEndPtTrackball valueAt:0) (@gStartPtTrackball valueAt:0))) kTol)
-                 (< (fabs (- (@gEndPtTrackball valueAt:1) (@gStartPtTrackball valueAt:1))) kTol))
+        (if (and (< (fabs (- (@gEndPtTrackball valueAtIndex:0) (@gStartPtTrackball valueAtIndex:0))) kTol)
+                 (< (fabs (- (@gEndPtTrackball valueAtIndex:1) (@gStartPtTrackball valueAtIndex:1))) kTol))
             (then
                  ;; Not enough change to bother with...do nothing...
                  (puts "...Doing nothing...yawn"))
             (else
                  ;; Compute the ending vector from the surface of the ball to its center.
-                 (set xxyy (+ (* (@gEndPtTrackball valueAt:0) (@gEndPtTrackball valueAt:0))
-                              (* (@gEndPtTrackball valueAt:1) (@gEndPtTrackball valueAt:1))))
+                 (set xxyy (+ (* (@gEndPtTrackball valueAtIndex:0) (@gEndPtTrackball valueAtIndex:0))
+                              (* (@gEndPtTrackball valueAtIndex:1) (@gEndPtTrackball valueAtIndex:1))))
                  
                  (if (> xxyy (* @gRadiusTrackball @gRadiusTrackball))
                      (then
@@ -752,16 +752,16 @@
                           (@gEndPtTrackball setValue:(sqrt (- (* @gRadiusTrackball @gRadiusTrackball) xxyy)) atIndex:2)))
                  
                  ;; Take the cross product of the two vectors. r = s X e
-                 (rot setValue:(- (* (@gStartPtTrackball valueAt:1) (@gEndPtTrackball valueAt:2))
-                                  (* (@gStartPtTrackball valueAt:2) (@gEndPtTrackball valueAt:1)))
+                 (rot setValue:(- (* (@gStartPtTrackball valueAtIndex:1) (@gEndPtTrackball valueAtIndex:2))
+                                  (* (@gStartPtTrackball valueAtIndex:2) (@gEndPtTrackball valueAtIndex:1)))
                       atIndex:1)
                  
-                 (rot setValue:(+ (* (- 0.0 (@gStartPtTrackball valueAt:0)) (@gEndPtTrackball valueAt:2))
-                                  (* (@gStartPtTrackball valueAt:2) (@gEndPtTrackball valueAt:0)))
+                 (rot setValue:(+ (* (- 0.0 (@gStartPtTrackball valueAtIndex:0)) (@gEndPtTrackball valueAtIndex:2))
+                                  (* (@gStartPtTrackball valueAtIndex:2) (@gEndPtTrackball valueAtIndex:0)))
                       atIndex:2)
                  
-                 (rot setValue:(- (* (@gStartPtTrackball valueAt:0) (@gEndPtTrackball valueAt:1))
-                                  (* (@gStartPtTrackball valueAt:1) (@gEndPtTrackball valueAt:0)))
+                 (rot setValue:(- (* (@gStartPtTrackball valueAtIndex:0) (@gEndPtTrackball valueAtIndex:1))
+                                  (* (@gStartPtTrackball valueAtIndex:1) (@gEndPtTrackball valueAtIndex:0)))
                       atIndex:3)
                  
                  ;; Use atan for a better angle.  If you use only cos or sin, you only get
@@ -771,19 +771,19 @@
                  ;; cos(a) = (s . e) / (||s|| ||e||)
                  
                  ;; (s . e)
-                 (set cosAng (+ (* (@gStartPtTrackball valueAt:0) (@gEndPtTrackball valueAt:0))
-                                (* (@gStartPtTrackball valueAt:1) (@gEndPtTrackball valueAt:1))
-                                (* (@gStartPtTrackball valueAt:2) (@gEndPtTrackball valueAt:2))))
+                 (set cosAng (+ (* (@gStartPtTrackball valueAtIndex:0) (@gEndPtTrackball valueAtIndex:0))
+                                (* (@gStartPtTrackball valueAtIndex:1) (@gEndPtTrackball valueAtIndex:1))
+                                (* (@gStartPtTrackball valueAtIndex:2) (@gEndPtTrackball valueAtIndex:2))))
                  
-                 (set ls (sqrt (+ (* (@gStartPtTrackball valueAt:0) (@gStartPtTrackball valueAt:0))
-                                  (* (@gStartPtTrackball valueAt:1) (@gStartPtTrackball valueAt:1))
-                                  (* (@gStartPtTrackball valueAt:2) (@gStartPtTrackball valueAt:2)))))
+                 (set ls (sqrt (+ (* (@gStartPtTrackball valueAtIndex:0) (@gStartPtTrackball valueAtIndex:0))
+                                  (* (@gStartPtTrackball valueAtIndex:1) (@gStartPtTrackball valueAtIndex:1))
+                                  (* (@gStartPtTrackball valueAtIndex:2) (@gStartPtTrackball valueAtIndex:2)))))
                  
                  (set ls (/ 1.0 ls))
                  
-                 (set le (sqrt (+ (* (@gEndPtTrackball valueAt:0) (@gEndPtTrackball valueAt:0))
-                                  (* (@gEndPtTrackball valueAt:1) (@gEndPtTrackball valueAt:1))
-                                  (* (@gEndPtTrackball valueAt:2) (@gEndPtTrackball valueAt:2)))))
+                 (set le (sqrt (+ (* (@gEndPtTrackball valueAtIndex:0) (@gEndPtTrackball valueAtIndex:0))
+                                  (* (@gEndPtTrackball valueAtIndex:1) (@gEndPtTrackball valueAtIndex:1))
+                                  (* (@gEndPtTrackball valueAtIndex:2) (@gEndPtTrackball valueAtIndex:2)))))
                  
                  (set le (/ 1.0 le))
                  
@@ -792,9 +792,9 @@
                  ;; sin(a) = ||(s X e)|| / (||s|| ||e||)
                  
                  ;; ||(s X e)||
-                 (set sinAng (sqrt (+ (* (rot valueAt:1) (rot valueAt:1))
-                                      (* (rot valueAt:2) (rot valueAt:2))
-                                      (* (rot valueAt:3) (rot valueAt:3)))))
+                 (set sinAng (sqrt (+ (* (rot valueAtIndex:1) (rot valueAtIndex:1))
+                                      (* (rot valueAtIndex:2) (rot valueAtIndex:2))
+                                      (* (rot valueAtIndex:3) (rot valueAtIndex:3)))))
                  
                  (set lr sinAng)
                  (set sinAng (* sinAng ls le))
@@ -805,9 +805,9 @@
                  ;; Normalize the rotation axis.
                  (set lr (/ 1.0 lr))
                  
-                 (rot setValue:(* (rot valueAt:1) lr) atIndex:1)
-                 (rot setValue:(* (rot valueAt:2) lr) atIndex:2)
-                 (rot setValue:(* (rot valueAt:3) lr) atIndex:3))))
+                 (rot setValue:(* (rot valueAtIndex:1) lr) atIndex:1)
+                 (rot setValue:(* (rot valueAtIndex:2) lr) atIndex:2)
+                 (rot setValue:(* (rot valueAtIndex:3) lr) atIndex:3))))
      
      
      
@@ -819,12 +819,12 @@
         ;;   {{v}, cos(angle/2)}, where {v} is {x, y, z} / sin(angle/2).
         
         ;; Convert from degrees ot radians, get the half-angle.
-        (set ang2 (* (A valueAt:0) kDeg2Rad 0.5))
+        (set ang2 (* (A valueAtIndex:0) kDeg2Rad 0.5))
         (set sinAng2 (sin ang2))
         
-        (q setValue:(* (A valueAt:1) sinAng2) atIndex:0)
-        (q setValue:(* (A valueAt:2) sinAng2) atIndex:1)
-        (q setValue:(* (A valueAt:3) sinAng2) atIndex:2)
+        (q setValue:(* (A valueAtIndex:1) sinAng2) atIndex:0)
+        (q setValue:(* (A valueAtIndex:2) sinAng2) atIndex:1)
+        (q setValue:(* (A valueAtIndex:3) sinAng2) atIndex:2)
         (q setValue:(cos ang2) atIndex:3))
      
      
@@ -839,16 +839,16 @@
         
         ;; q2 = q1 + q0;
         ;; Better have a 30" Cinema Display to see all of this line at once.
-        (@q2 setValue:(+ (+ (- (* (@q1 valueAt:1) (@q0 valueAt:2)) (* (@q1 valueAt:2) (@q0 valueAt:1))) (* (@q1 valueAt:3) (@q0 valueAt:0))) (* (@q1 valueAt:0) (@q0 valueAt:3))) atIndex:0)
-        (@q2 setValue:(+ (+ (- (* (@q1 valueAt:2) (@q0 valueAt:0)) (* (@q1 valueAt:0) (@q0 valueAt:2))) (* (@q1 valueAt:3) (@q0 valueAt:1))) (* (@q1 valueAt:1) (@q0 valueAt:3))) atIndex:1)
-        (@q2 setValue:(+ (+ (- (* (@q1 valueAt:0) (@q0 valueAt:1)) (* (@q1 valueAt:1) (@q0 valueAt:0))) (* (@q1 valueAt:3) (@q0 valueAt:2))) (* (@q1 valueAt:2) (@q0 valueAt:3))) atIndex:2)
-        (@q2 setValue:(- (- (- (* (@q1 valueAt:3) (@q0 valueAt:3)) (* (@q1 valueAt:0) (@q0 valueAt:0))) (* (@q1 valueAt:1) (@q0 valueAt:1))) (* (@q1 valueAt:2) (@q0 valueAt:2))) atIndex:3)
+        (@q2 setValue:(+ (+ (- (* (@q1 valueAtIndex:1) (@q0 valueAtIndex:2)) (* (@q1 valueAtIndex:2) (@q0 valueAtIndex:1))) (* (@q1 valueAtIndex:3) (@q0 valueAtIndex:0))) (* (@q1 valueAtIndex:0) (@q0 valueAtIndex:3))) atIndex:0)
+        (@q2 setValue:(+ (+ (- (* (@q1 valueAtIndex:2) (@q0 valueAtIndex:0)) (* (@q1 valueAtIndex:0) (@q0 valueAtIndex:2))) (* (@q1 valueAtIndex:3) (@q0 valueAtIndex:1))) (* (@q1 valueAtIndex:1) (@q0 valueAtIndex:3))) atIndex:1)
+        (@q2 setValue:(+ (+ (- (* (@q1 valueAtIndex:0) (@q0 valueAtIndex:1)) (* (@q1 valueAtIndex:1) (@q0 valueAtIndex:0))) (* (@q1 valueAtIndex:3) (@q0 valueAtIndex:2))) (* (@q1 valueAtIndex:2) (@q0 valueAtIndex:3))) atIndex:2)
+        (@q2 setValue:(- (- (- (* (@q1 valueAtIndex:3) (@q0 valueAtIndex:3)) (* (@q1 valueAtIndex:0) (@q0 valueAtIndex:0))) (* (@q1 valueAtIndex:1) (@q0 valueAtIndex:1))) (* (@q1 valueAtIndex:2) (@q0 valueAtIndex:2))) atIndex:3)
         
         ;; An identity rotation is expressed as rotation by 0 about any axis.
         ;; The "angle" term in a quaternion is really the cosine of the half-angle.
         ;; So, if the cosine of the half-angle is one (or, 1.0 within our tolerance),
         ;; then you have an identity rotation.
-        (if (< (fabs (fabs (- (@q2 valueAt:3) 1.0))) 1.0e-7)
+        (if (< (fabs (fabs (- (@q2 valueAtIndex:3) 1.0))) 1.0e-7)
             (then
                  ;; Identity rotation.
                  (A setValue:0.0 atIndex:0)
@@ -862,12 +862,12 @@
                  ;; So we can safely divide by sin(theta2).
                  
                  ;; Turn the quaternion back into an {angle, {axis}} rotation.
-                 (set theta2 (acos (@q2 valueAt:3)))
+                 (set theta2 (acos (@q2 valueAtIndex:3)))
                  (set sinTheta2 (/ 1.0 (sin theta2)))
                  (A setValue:(* theta2 2.0 kRad2Deg) atIndex:0)
-                 (A setValue:(* (@q2 valueAt:0) sinTheta2) atIndex:1)
-                 (A setValue:(* (@q2 valueAt:1) sinTheta2) atIndex:2)
-                 (A setValue:(* (@q2 valueAt:2) sinTheta2) atIndex:3)))))
+                 (A setValue:(* (@q2 valueAtIndex:0) sinTheta2) atIndex:1)
+                 (A setValue:(* (@q2 valueAtIndex:1) sinTheta2) atIndex:2)
+                 (A setValue:(* (@q2 valueAtIndex:2) sinTheta2) atIndex:3)))))
 
 
 ;; @class NuOpenGLWindowController
