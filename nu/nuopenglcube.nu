@@ -94,11 +94,11 @@
      (- (double) valueAt:(int) i is
         (@data objectAtIndex:i))
      
-     (- (void) setAt:(int) i value:(double) value is
+     (- (void) setValue:(double) value atIndex:(int) i is
         (@data nuReplaceObjectAtIndex:i withObject:value))
      
-     (- (void) setAt:(int) i delta:(double) delta is
-        (self setAt:i value:(+ (self valueAt:i) delta)))
+     (- (void) setDelta:(double) delta atIndex:(int) i is
+        (self setValue:(+ (self valueAt:i) delta) atIndex:i))
      
      ;; Make aliases for 3d coordinate usage
      (- (double) x is
@@ -111,13 +111,13 @@
         (self valueAt:2))
      
      (- (void) setX:(double)value is
-        (self setAt:0 value:value))
+        (self setValue:value atIndex:0))
      
      (- (void) setY:(double)value is
-        (self setAt:1 value:value))
+        (self setValue:value atIndex:1))
      
      (- (void) setZ:(double)value is
-        (self setAt:2 value:value)))
+        (self setValue:value atIndex:2)))
 
 
 ;; For keeping track of our camera
@@ -162,16 +162,16 @@
         (set @shapeSize 7.0)
         
         ;; set start values...
-        (@rVel setAt:0 value:0.3)
-        (@rVel setAt:1 value:0.1)
-        (@rVel setAt:2 value:0.2)
+        (@rVel setValue:0.3 atIndex:0)
+        (@rVel setValue:0.1 atIndex:1)
+        (@rVel setValue:0.2 atIndex:2)
         (set $rVel @rVel)
-
-        (@rAccel setAt:0 value:0.003)
-        (@rAccel setAt:1 value:-0.005)
-        (@rAccel setAt:2 value:0.004)
+        
+        (@rAccel setValue:0.003 atIndex:0)
+        (@rAccel setValue:-0.005 atIndex:1)
+        (@rAccel setValue:0.004 atIndex:2)
         (set $rAccel @rAccel)
-
+        
         (set @timer nil)
         (set @isAnimate 0)
         (set @lastTime (CFAbsoluteTimeGetCurrent))
@@ -187,7 +187,14 @@
         (set @gYCenterTrackball 0)
         
         (set @gStartPtTrackball ((SpaceVector alloc) init))
-        (set @gEndPtTrackball ((SpaceVector alloc) init)))
+        (set @gEndPtTrackball ((SpaceVector alloc) init))
+
+		;; Temporary working variables for trackball functions
+		;; to avoid local alloc-init each frame
+		(set @rotation ((SpaceVector alloc) init))
+		(set @q0 ((SpaceVector alloc) init))
+		(set @q1 ((SpaceVector alloc) init))
+		(set @q2 ((SpaceVector alloc) init)))
      
      
      (- (id) initWithFrame: (NSRect) frameRect is
@@ -321,46 +328,45 @@
      
      ;; Update rotation based on velocity and acceleration
      (- (void) updateObjectRotationForTimeDelta: (double) deltaTime is
-        
-        (set rotation ((SpaceVector alloc) init))
+
         (set vMax 2.0)
         
         ;; Do velocities
         (for ((set i 0) (< i 3) (set i (+ i 1)))
-             (@rVel setAt:i delta:(* (@rAccel valueAt:i) deltaTime 30.0))
+             (@rVel setDelta:(* (@rAccel valueAt:i) deltaTime 30.0) atIndex:i)
              
              (if (> (@rVel valueAt:i) vMax)
                  (then
-                      (@rAccel setAt:i value:(* -1.0 (@rAccel valueAt:i)))
-                      (@rVel setAt:i value:vMax))
+                      (@rAccel setValue:(* -1.0 (@rAccel valueAt:i)) atIndex:i)
+                      (@rVel setValue:vMax atIndex:i))
                  (else
                       (if (< (@rVel valueAt:i) (- 0.0 vMax))
                           (then
-                               (@rAccel setAt:i value:(* -1.0 (@rAccel valueAt:i)))
-                               (@rVel setAt:i value:(- 0.0 vMax))))))
+                               (@rAccel setValue:(* -1.0 (@rAccel valueAt:i)) atIndex:i)
+                               (@rVel setValue:(- 0.0 vMax) atIndex:i)))))
              
-             (@rRot setAt:i delta:(* (@rVel valueAt:i) deltaTime 30.0))
+             (@rRot setDelta:(* (@rVel valueAt:i) deltaTime 30.0) atIndex:i)
              
              ;; Get our values in the normal range
              (while (> (@rRot valueAt:i) 360.0)
-                    (@rRot setAt:i delta:-360.0))
+                    (@rRot setDelta:-360.0 atIndex:i))
              
              (while (< (@rRot valueAt:i) -360.0)
-                    (@rRot setAt:i delta:360.0)))
+                    (@rRot setDelta:360.0 atIndex:i)))
         
-        (rotation setAt:0 value:(@rRot valueAt:0))
-        (rotation setAt:1 value:1.0)
-        (self addToRotationTrackball:rotation a:@objectRotation)
+        (@rotation setValue:(@rRot valueAt:0) atIndex:0)
+        (@rotation setValue:1.0 atIndex:1)
+        (self addToRotationTrackball:@rotation a:@objectRotation)
         
-        (rotation setAt:0 value:(@rRot valueAt:1))
-        (rotation setAt:1 value:0.0)
-        (rotation setAt:2 value:1.0)
-        (self addToRotationTrackball:rotation a:@objectRotation)
+        (@rotation setValue:(@rRot valueAt:1) atIndex:0)
+        (@rotation setValue:0.0 atIndex:1)
+        (@rotation setValue:1.0 atIndex:2)
+        (self addToRotationTrackball:@rotation a:@objectRotation)
         
-        (rotation setAt:0 value:(@rRot valueAt:2))
-        (rotation setAt:2 value:0.0)
-        (rotation setAt:3 value:1.0)
-        (self addToRotationTrackball:rotation a:@objectRotation))
+        (@rotation setValue:(@rRot valueAt:2) atIndex:0)
+        (@rotation setValue:0.0 atIndex:2)
+        (@rotation setValue:1.0 atIndex:3)
+        (self addToRotationTrackball:@rotation a:@objectRotation))
      
      
      ;; Move the objects and apply panning and rotations
@@ -401,9 +407,9 @@
         
         ;; reset animation rotations
         ;; (do in all cases to prevent rotating while moving with trackball)
-        (@rRot setAt:0 value:0.0)
-        (@rRot setAt:1 value:0.0)
-        (@rRot setAt:2 value:0.0))
+        (@rRot setValue:0.0 atIndex:0)
+        (@rRot setValue:0.0 atIndex:1)
+        (@rRot setValue:0.0 atIndex:2))
      
      
      ;; Rescale the viewport
@@ -709,8 +715,8 @@
         (set @gYCenterTrackball (+ originY (* height 0.5)))
         
         ;; Compute the starting vector from the surface of the ball to its center.
-        (@gStartPtTrackball setAt:0 value:(- x @gXCenterTrackball))
-        (@gStartPtTrackball setAt:1 value:(- y @gYCenterTrackball))
+        (@gStartPtTrackball setValue:(- x @gXCenterTrackball) atIndex:0)
+        (@gStartPtTrackball setValue:(- y @gYCenterTrackball) atIndex:1)
         
         (set xxyy (+ (* (@gStartPtTrackball valueAt:0) (@gStartPtTrackball valueAt:0))
                      (* (@gStartPtTrackball valueAt:1) (@gStartPtTrackball valueAt:1))))
@@ -718,15 +724,15 @@
         (if (> xxyy (* @gRadiusTrackball @gRadiusTrackball))
             (then
                  ;; Outside the sphere
-                 (@gStartPtTrackball setAt:2 value:0.0))
+                 (@gStartPtTrackball setValue:0.0 atIndex:2))
             (else
-                 (@gStartPtTrackball setAt:2 value:(sqrt (- (* @gRadiusTrackball @gRadiusTrackball) xxyy))))))
+                 (@gStartPtTrackball setValue:(sqrt (- (* @gRadiusTrackball @gRadiusTrackball) xxyy)) atIndex:2))))
      
      
      ;; update to new mouse position, output rotation angle
      (- (void) rollToTrackball:(int) x y:(int) y rot:(id) rot is
-        (@gEndPtTrackball setAt:0 value:(- x @gXCenterTrackball))
-        (@gEndPtTrackball setAt:1 value:(- y @gYCenterTrackball))
+        (@gEndPtTrackball setValue:(- x @gXCenterTrackball) atIndex:0)
+        (@gEndPtTrackball setValue:(- y @gYCenterTrackball) atIndex:1)
         
         (if (and (< (fabs (- (@gEndPtTrackball valueAt:0) (@gStartPtTrackball valueAt:0))) kTol)
                  (< (fabs (- (@gEndPtTrackball valueAt:1) (@gStartPtTrackball valueAt:1))) kTol))
@@ -741,19 +747,22 @@
                  (if (> xxyy (* @gRadiusTrackball @gRadiusTrackball))
                      (then
                           ;; Outside the sphere.
-                          (@gEndPtTrackball setAt:2 value:0.0))
+                          (@gEndPtTrackball setValue:0.0 atIndex:2))
                      (else
-                          (@gEndPtTrackball setAt:2 value:(sqrt (- (* @gRadiusTrackball @gRadiusTrackball) xxyy)))))
+                          (@gEndPtTrackball setValue:(sqrt (- (* @gRadiusTrackball @gRadiusTrackball) xxyy)) atIndex:2)))
                  
                  ;; Take the cross product of the two vectors. r = s X e
-                 (rot setAt:1 value:(- (* (@gStartPtTrackball valueAt:1) (@gEndPtTrackball valueAt:2))
-                                       (* (@gStartPtTrackball valueAt:2) (@gEndPtTrackball valueAt:1))))
+                 (rot setValue:(- (* (@gStartPtTrackball valueAt:1) (@gEndPtTrackball valueAt:2))
+                                  (* (@gStartPtTrackball valueAt:2) (@gEndPtTrackball valueAt:1)))
+                      atIndex:1)
                  
-                 (rot setAt:2 value:(+ (* (- 0.0 (@gStartPtTrackball valueAt:0)) (@gEndPtTrackball valueAt:2))
-                                       (* (@gStartPtTrackball valueAt:2) (@gEndPtTrackball valueAt:0))))
+                 (rot setValue:(+ (* (- 0.0 (@gStartPtTrackball valueAt:0)) (@gEndPtTrackball valueAt:2))
+                                  (* (@gStartPtTrackball valueAt:2) (@gEndPtTrackball valueAt:0)))
+                      atIndex:2)
                  
-                 (rot setAt:3 value:(- (* (@gStartPtTrackball valueAt:0) (@gEndPtTrackball valueAt:1))
-                                       (* (@gStartPtTrackball valueAt:1) (@gEndPtTrackball valueAt:0))))
+                 (rot setValue:(- (* (@gStartPtTrackball valueAt:0) (@gEndPtTrackball valueAt:1))
+                                  (* (@gStartPtTrackball valueAt:1) (@gEndPtTrackball valueAt:0)))
+                      atIndex:3)
                  
                  ;; Use atan for a better angle.  If you use only cos or sin, you only get
                  ;; half the possible angles, and you can end up with rotations that flip around near
@@ -791,14 +800,14 @@
                  (set sinAng (* sinAng ls le))
                  
                  ;; GL rotations are in degrees.
-                 (rot setAt:0 value:(* (atan2 sinAng cosAng) kRad2Deg))
+                 (rot setValue:(* (atan2 sinAng cosAng) kRad2Deg) atIndex:0)
                  
                  ;; Normalize the rotation axis.
                  (set lr (/ 1.0 lr))
                  
-                 (rot setAt:1 value:(* (rot valueAt:1) lr))
-                 (rot setAt:2 value:(* (rot valueAt:2) lr))
-                 (rot setAt:3 value:(* (rot valueAt:3) lr)))))
+                 (rot setValue:(* (rot valueAt:1) lr) atIndex:1)
+                 (rot setValue:(* (rot valueAt:2) lr) atIndex:2)
+                 (rot setValue:(* (rot valueAt:3) lr) atIndex:3))))
      
      
      
@@ -813,56 +822,52 @@
         (set ang2 (* (A valueAt:0) kDeg2Rad 0.5))
         (set sinAng2 (sin ang2))
         
-        (q setAt:0 value:(* (A valueAt:1) sinAng2))
-        (q setAt:1 value:(* (A valueAt:2) sinAng2))
-        (q setAt:2 value:(* (A valueAt:3) sinAng2))
-        (q setAt:3 value:(cos ang2)))
+        (q setValue:(* (A valueAt:1) sinAng2) atIndex:0)
+        (q setValue:(* (A valueAt:2) sinAng2) atIndex:1)
+        (q setValue:(* (A valueAt:3) sinAng2) atIndex:2)
+        (q setValue:(cos ang2) atIndex:3))
      
      
      (- (void) addToRotationTrackball:(id)dA a:(id)A is
-        (set q0 ((SpaceVector alloc) init))
-        (set q1 ((SpaceVector alloc) init))
-        (set q2 ((SpaceVector alloc) init))
-        
         ;; Figure out A' = A . dA
         ;; In quaternions: let q0 <- A, and q1 <- dA.
         ;; Figure out q2 = q1 + q0 (note the order reversal!).
         ;; A' <- q3.
         
-        (self rotation2Quat:A q:q0)
-        (self rotation2Quat:dA q:q1)
+        (self rotation2Quat:A q:@q0)
+        (self rotation2Quat:dA q:@q1)
         
         ;; q2 = q1 + q0;
         ;; Better have a 30" Cinema Display to see all of this line at once.
-        (q2 setAt:0 value:(+ (+ (- (* (q1 valueAt:1) (q0 valueAt:2)) (* (q1 valueAt:2) (q0 valueAt:1))) (* (q1 valueAt:3) (q0 valueAt:0))) (* (q1 valueAt:0) (q0 valueAt:3))))
-        (q2 setAt:1 value:(+ (+ (- (* (q1 valueAt:2) (q0 valueAt:0)) (* (q1 valueAt:0) (q0 valueAt:2))) (* (q1 valueAt:3) (q0 valueAt:1))) (* (q1 valueAt:1) (q0 valueAt:3))))
-        (q2 setAt:2 value:(+ (+ (- (* (q1 valueAt:0) (q0 valueAt:1)) (* (q1 valueAt:1) (q0 valueAt:0))) (* (q1 valueAt:3) (q0 valueAt:2))) (* (q1 valueAt:2) (q0 valueAt:3))))
-        (q2 setAt:3 value:(- (- (- (* (q1 valueAt:3) (q0 valueAt:3)) (* (q1 valueAt:0) (q0 valueAt:0))) (* (q1 valueAt:1) (q0 valueAt:1))) (* (q1 valueAt:2) (q0 valueAt:2))))
+        (@q2 setValue:(+ (+ (- (* (@q1 valueAt:1) (@q0 valueAt:2)) (* (@q1 valueAt:2) (@q0 valueAt:1))) (* (@q1 valueAt:3) (@q0 valueAt:0))) (* (@q1 valueAt:0) (@q0 valueAt:3))) atIndex:0)
+        (@q2 setValue:(+ (+ (- (* (@q1 valueAt:2) (@q0 valueAt:0)) (* (@q1 valueAt:0) (@q0 valueAt:2))) (* (@q1 valueAt:3) (@q0 valueAt:1))) (* (@q1 valueAt:1) (@q0 valueAt:3))) atIndex:1)
+        (@q2 setValue:(+ (+ (- (* (@q1 valueAt:0) (@q0 valueAt:1)) (* (@q1 valueAt:1) (@q0 valueAt:0))) (* (@q1 valueAt:3) (@q0 valueAt:2))) (* (@q1 valueAt:2) (@q0 valueAt:3))) atIndex:2)
+        (@q2 setValue:(- (- (- (* (@q1 valueAt:3) (@q0 valueAt:3)) (* (@q1 valueAt:0) (@q0 valueAt:0))) (* (@q1 valueAt:1) (@q0 valueAt:1))) (* (@q1 valueAt:2) (@q0 valueAt:2))) atIndex:3)
         
         ;; An identity rotation is expressed as rotation by 0 about any axis.
         ;; The "angle" term in a quaternion is really the cosine of the half-angle.
         ;; So, if the cosine of the half-angle is one (or, 1.0 within our tolerance),
         ;; then you have an identity rotation.
-        (if (< (fabs (fabs (- (q2 valueAt:3) 1.0))) 1.0e-7)
+        (if (< (fabs (fabs (- (@q2 valueAt:3) 1.0))) 1.0e-7)
             (then
                  ;; Identity rotation.
-                 (A setAt:0 value:0.0)
-                 (A setAt:1 value:1.0)
-                 (A setAt:2 value:0.0)
-                 (A setAt:3 value:0.0))
+                 (A setValue:0.0 atIndex:0)
+                 (A setValue:1.0 atIndex:1)
+                 (A setValue:0.0 atIndex:2)
+                 (A setValue:0.0 atIndex:3))
             (else
                  ;; If you get here, then you have a non-identity rotation.
                  ;; In non-identity rotations, the cosine of the half-angle is non-0,
                  ;; which means the sine of the angle is also non-0.
                  ;; So we can safely divide by sin(theta2).
-
+                 
                  ;; Turn the quaternion back into an {angle, {axis}} rotation.
-                 (set theta2 (acos (q2 valueAt:3)))
+                 (set theta2 (acos (@q2 valueAt:3)))
                  (set sinTheta2 (/ 1.0 (sin theta2)))
-                 (A setAt:0 value:(* theta2 2.0 kRad2Deg))
-                 (A setAt:1 value:(* (q2 valueAt:0) sinTheta2))
-                 (A setAt:2 value:(* (q2 valueAt:1) sinTheta2))
-                 (A setAt:3 value:(* (q2 valueAt:2) sinTheta2))))))
+                 (A setValue:(* theta2 2.0 kRad2Deg) atIndex:0)
+                 (A setValue:(* (@q2 valueAt:0) sinTheta2) atIndex:1)
+                 (A setValue:(* (@q2 valueAt:1) sinTheta2) atIndex:2)
+                 (A setValue:(* (@q2 valueAt:2) sinTheta2) atIndex:3)))))
 
 
 ;; @class NuOpenGLWindowController

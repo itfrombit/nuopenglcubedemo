@@ -25,9 +25,9 @@ acceleration vectors when animating the cube:
 	;; and set X/Y/Z parameters
 
 	($rVel valueAt:0)	;; X velocity
-	($rVel setAt:0 value:0.5)
+	($rVel setValue:0.5 atIndex:0)
 	
-	($rAccel setAt:0 value:0.004) ;; acceleration
+	($rAccel setValue:0.004 atIndex:0) ;; acceleration
 
 You can also play with the camera settings like the
 aperture, but not all of these setting have global
