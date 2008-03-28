@@ -24,7 +24,7 @@ acceleration vectors when animating the cube:
 	;; Use indexes 0,1,2 to explore 
 	;; and set X/Y/Z parameters
 
-	($rVel valueAt:0)	;; X velocity
+	($rVel valueAtIndex:0)	;; X velocity
 	($rVel setValue:0.5 atIndex:0)
 	
 	($rAccel setValue:0.004 atIndex:0) ;; acceleration
