@@ -893,7 +893,7 @@
                         delegate:self
                         opaque:NO
                         hidesOnDeactivate:NO
-                        frameOrigin: (NSValue valueWithPoint: '(1000 1000))
+                        frameOrigin: (NSValue valueWithPoint: '(100 200))
                         minSize:     (NSValue valueWithSize:  '(600 400))
                         contentView: ((NSView alloc) initWithFrame:mainFrame)))
                
