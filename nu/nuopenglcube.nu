@@ -95,7 +95,7 @@
         (@data objectAtIndex:i))
      
      (- (void) setValue:(double) value atIndex:(int) i is
-        (@data nuReplaceObjectAtIndex:i withObject:value))
+        (@data replaceObjectAtIndex:i withObject:value))
      
      (- (void) setDelta:(double) delta atIndex:(int) i is
         (self setValue:(+ (self valueAtIndex:i) delta) atIndex:i))
@@ -885,7 +885,7 @@
                             NSClosableWindowMask
                             NSMiniaturizableWindowMask
                             NSResizableWindowMask))
-          
+
           (self initWithWindow:((NSWindow alloc)
                                 initWithContentRect:mainFrame
                                 styleMask:styleMask
@@ -901,7 +901,7 @@
                         frameOrigin: (NSValue valueWithPoint: '(100 200))
                         minSize:     (NSValue valueWithSize:  '(600 400))
                         contentView: ((NSView alloc) initWithFrame:mainFrame)))
-               
+
                (set @view ((NuOpenGLView alloc) initWithFrame:'(0 0 800 600)))
                ((w contentView) addSubview:@view)
                (@view setAutoresizingMask:(+ NSViewWidthSizable NSViewHeightSizable))
