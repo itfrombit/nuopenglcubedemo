@@ -13,7 +13,7 @@
 ;; build configuration
 (set @cc "gcc")
 (set @cflags "-g -O3 -DMACOSX ")
-(set @mflags "-fobjc-exceptions")
+(set @mflags "-fobjc-gc -fobjc-exceptions")
 
 (set @ldflags
      ((list
